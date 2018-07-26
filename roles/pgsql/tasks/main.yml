@@ -1,0 +1,51 @@
+# base role for repo and packages
+---
+- name: install progress
+  command: "yum install -y postgresql-server"
+
+- name: whoami
+  shell: whoami
+
+- name: whoami
+  shell: ls -lart /var/lib/pgsql/
+
+# - name: install postgres
+#  yum:
+#    name: postgresql-server
+#    state: latest
+- name: enable apache at boot
+  service:
+    name: postgresql
+    enabled: yes
+- name: tell user to finish setting up postgres
+  debug:
+    msg: "Either uncomment the postgres setup or manually login and initialize"
+
+# - name: stat ansible configuration file
+#   stat:
+#     path: "/var/lib/pgsql/data"
+#   register: stat_ansible_config
+
+- name: Check if PostgreSQL database is initialized.
+  stat:
+    path: "/var/lib/pgsql/data"
+  register: pgdata_dir_version
+
+ # only run the next 2 tasks once!
+# - name: initilize postgres
+#   command: postgresql-setup initdb
+# - name: initilize postgres some more
+#   command: chkconfig postgresql on
+
+- name: Ensure PostgreSQL database is initialized.
+  command: postgresql-setup initdb
+  when: not pgdata_dir_version.stat.exists
+
+- name: Ensure PostgreSQL database is Checkconfig on.
+  command: chkconfig postgresql on
+  when: not pgdata_dir_version.stat.exists
+
+- name: start postgres
+  service:
+    name: postgresql.service
+    state: started

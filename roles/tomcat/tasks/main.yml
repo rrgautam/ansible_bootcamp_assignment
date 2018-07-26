@@ -1,0 +1,40 @@
+# base role for repo and packages
+---
+- name: install tomcat
+  package:
+    name: tomcat
+    state: latest
+- name: enable tomcat at boot
+  service:
+    name: tomcat
+    enabled: yes
+
+- name: create  tomcat directory
+  file:
+    path: /usr/share/tomcat/webapps/ROOT/
+    state: directory
+    mode: 0755
+
+- name: create ansible tomcat directory
+  file:
+    path: /usr/share/tomcat/webapps/ansible
+    state: directory
+    mode: 0755
+
+- name: copy static index.html to tomcat webapps/ansible/index.html
+  template:
+    src: index.html.j2
+    dest: /usr/share/tomcat/webapps/ROOT/index.html
+    mode: 0755
+
+- name: start tomcat
+  service:
+    name: tomcat
+    state: started
+
+
+- name: copy static index.html to tomcat webapps/ansible/index.html
+  template:
+    src: index.html.j2
+    dest: /usr/share/tomcat/webapps/ansible/index.html
+
